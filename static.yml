@@ -11,7 +11,8 @@ permissions:
   id-token: write
 
 jobs:
-  build-and-deploy:
+  # This job builds the site
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -29,15 +30,19 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Vite builds to the 'dist' folder by default
-          path: './dist'
+          path: './dist' # Vite puts the finished site here
 
+  # This job deploys the site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
